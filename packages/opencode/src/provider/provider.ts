@@ -138,16 +138,9 @@ export namespace Provider {
         return false
       })()
 
-      if (!hasKey) {
-        for (const [key, value] of Object.entries(input.models)) {
-          if (value.cost.input === 0) continue
-          delete input.models[key]
-        }
-      }
-
       return {
-        autoload: Object.keys(input.models).length > 0,
-        options: hasKey ? {} : { apiKey: "public" },
+        autoload: hasKey,
+        options: {},
       }
     },
     openai: async () => {
@@ -761,7 +754,9 @@ export namespace Provider {
     const database = mapValues(modelsDev, fromModelsDevProvider)
 
     const disabled = new Set(config.disabled_providers ?? [])
-    const enabled = config.enabled_providers ? new Set(config.enabled_providers) : null
+    const enabled = config.enabled_providers
+      ? new Set(config.enabled_providers)
+      : new Set(["github-copilot", "github-copilot-enterprise"])
 
     function isProviderAllowed(providerID: string): boolean {
       if (enabled && !enabled.has(providerID)) return false
